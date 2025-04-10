@@ -22,5 +22,18 @@ jobs:
     - name: Build Docker image
       run: docker build -t ${{ secrets.DOCKER_USERNAME }}/react-clock .
 
+    - name: Run Docker container
+      run: docker run -d -p 5000:5000 --name react-clock-container ${{ secrets.DOCKER_USERNAME }}/react-clock
+
+    - name: Wait for app to be ready
+      run: sleep 5  # Attends 5 secondes pour que l'application soit prête
+
+    - name: Test container with curl
+      run: |
+        curl --fail http://localhost:5000 || exit 1  # Teste si l'app répond bien sur le port 5000
+
+    - name: Stop container
+      run: docker stop react-clock-container  # Arrête le conteneur après le test
+
     - name: Push image to Docker Hub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/react-clock
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/react-clock  # Push de l'image vers Docker Hub
